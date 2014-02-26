@@ -40,6 +40,7 @@ private:
 //basic information
     char loginid[IDMAXLENGTH];  // 1584 here
     char password[PASSWORDMAXLENGTH]; // 1600here
+    int uid; //user id   1604here
 
 public:
 

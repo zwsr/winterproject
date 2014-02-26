@@ -1,5 +1,5 @@
 #include "Database.h"
 
-Database::Database()
+Hashindex_db::Hashindex_db()
 {
 }
