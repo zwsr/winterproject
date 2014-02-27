@@ -9,6 +9,8 @@
 #define MESSAGEDELIVERINGMAX 200
 #define PASSWORDMAXLENGTH 16
 
+//ID限制11个字符 家乡9个 密码15个
+
 class Date
 {
 private:
