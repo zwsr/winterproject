@@ -1,7 +1,7 @@
 #ifndef _USER_H_
-#define
+#define _USER_H_
 #include <iostream>
-
+#include <cstring>
 #define IDMAXLENGTH 12
 #define HOMEMAXLENGTH 10
 #define FOLLOWEOTHERMAX 60
@@ -11,20 +11,28 @@
 
 //ID限制11个字符 家乡9个 密码15个
 
-class Date
-{
-private:
-    int year,month,day;
-public:
-    read_birth(int y, int m, int d);
-};
+//接下来的宏为各数据在user中的相对位置
+
+//结束
+#define NAME 0
+#define BIRTH 12
+#define GENDER 24
+#define HOMETOWN 25
+#define PHONENBR 35
+#define IS_DIABLED 39
+#define USER_FOLLOWED 40
+#define USER_FOLLOWING_ME 284
+#define MSG_DLVD 768
+#define LOGINID 1572
+#define PSD 1584
+#define UID 1600
 
 class User
 {
 private:
 //essential information
     char name[IDMAXLENGTH];                          //12 here
-    Date birth;                                      //12 + 12 = 24 here
+    char birth[12];                                      //12 + 12 = 24 here
     bool gender; // true for male  false for female  //25 here
 
 //extra information    
@@ -45,7 +53,19 @@ private:
     int uid; //user id   1604here
 
 public:
-
-
+    User()
+    {
+        memset(this,0,sizeof(User));
+    }
+    void deliver_message();
+    void change_information();
+    void change_password();
+    void disable_account();
+    void check_i_followed_who_list();
+    void check_i_am_followed_by_who_list();
+    void check_msg();
+    void seek_user();  //id only
+    void see_one_msglist(int uid);
+    void trans_message(int mid);
 };
 #endif // USER_H

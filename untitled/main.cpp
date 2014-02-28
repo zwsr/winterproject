@@ -1,13 +1,15 @@
 #include <iostream>
+#include "Database.h"
+
+Hashindex_db userindex_db;
+Userdatabase user_db;
+Messagedatabase message_db;
+
 
 using namespace std;
 
 int main()
 {
-    cout << "Hello World!" << endl;
-    int a = 5;
-    cin >> a;
-    cout << a <<endl;
-    return 0;
+
 }
 
