@@ -2,8 +2,10 @@
 #define _USER_H_
 #include <iostream>
 #include <cstring>
+
 #define IDMAXLENGTH 12
 #define HOMEMAXLENGTH 10
+#define PHONENUMBERMAXLENGTH 16
 #define FOLLOWEOTHERMAX 60
 #define FOLLOWEDMAX 120
 #define MESSAGEDELIVERINGMAX 200
@@ -19,13 +21,13 @@
 #define GENDER 24
 #define HOMETOWN 25
 #define PHONENBR 35
-#define IS_DIABLED 39
-#define USER_FOLLOWED 40
-#define USER_FOLLOWING_ME 284
-#define MSG_DLVD 768
-#define LOGINID 1572
-#define PSD 1584
-#define UID 1600
+#define IS_DIABLED 51
+#define USER_FOLLOWED 52
+#define USER_FOLLOWING_ME 296
+#define MSG_DLVD 780
+#define LOGINID 1584
+#define PSD 1596
+#define UID 1612
 
 class User
 {
@@ -37,28 +39,36 @@ private:
 
 //extra information    
     char hometown[HOMEMAXLENGTH];                    //25 + 10 = 35 here
-    int phonenumber;                                 //35 +  4 = 39 here
+    char phonenumber[PHONENUMBERMAXLENGTH];                                 //35 + 12 = 47 here
 
 //other informantion
-    bool is_disableuser; //true 表示该账号已被删除  但不能被注册/使用  40 here
-    int user_followed[FOLLOWEOTHERMAX+1]; //自己关注的人的UID 上限60人 [0]是目前关注的人的个数 61 * 4 + 40 = 284  here
-    int user_following_me[FOLLOWEDMAX+1]; //关注自己的人的UID 上限120人 [0]是关注自己人的个数  121 * 4 + 284 = 768 here
+    bool is_disableuser; //true 表示该账号已被删除  但不能被注册/使用
+    int user_followed[FOLLOWEOTHERMAX+1]; //自己关注的人的UID 上限60人 [0]是目前关注的人的个数 61 * 4
+    int user_following_me[FOLLOWEDMAX+1]; //关注自己的人的UID 上限120人 [0]是关注自己人的个数  121 * 4
 
 
-    int message_delieverd[MESSAGEDELIVERINGMAX+1]; //记录发过的信息的mid [0]是总消息数  1572 here
+    int message_delieverd[MESSAGEDELIVERINGMAX+1]; //记录发过的信息的mid [0]是总消息数
 
 //basic information
-    char loginid[IDMAXLENGTH];  // 1584 here
-    char password[PASSWORDMAXLENGTH]; // 1600here
-    int uid; //user id   1604here
+    char loginid[IDMAXLENGTH];
+    char password[PASSWORDMAXLENGTH];
+    int uid; //user id
 
 public:
     User()
     {
         memset(this,0,sizeof(User));
     }
-    void deliver_message();
+    void add_msg(int mid);
+    void deliver_message();    
     void change_information();
+
+    void change_name();
+    void change_birthday();
+    void change_gender();
+    void change_phonenumber();
+    void change_hometown();
+
     void change_password();
     void disable_account();
     void check_i_followed_who_list();

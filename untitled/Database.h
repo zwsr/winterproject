@@ -50,12 +50,20 @@ class Messagedatabase //一个专门用来管理储存message数据的文件 该
 {
 private:
     fstream fio;
+    int msg_number;
 
 public:
     Message get_message(int mid);
     void init();
-    void add_msg(User new_msg);
-    Messagedatabase() {}
+    int add_msg(User new_msg); //返回mid
+    Messagedatabase():msg_number(0)
+    {}
+    ~Messagedatabase()
+    {
+        fio.open(messagedata_filename,ios::out|ios::in);
+        fio.write((char *)&msg_number,sizeof(int));
+        fio.close();
+    }
 
 };
 

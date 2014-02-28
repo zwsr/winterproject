@@ -191,15 +191,20 @@ void Messagedatabase::init()
 {
     fio.open(messagedata_filename,ios::in);
     if (!fio)
+    {
         fio.open(messagedata_filename,ios::out);
+        fio.write((char *)&msg_number,sizeof(int));
+    }
+    fio.read((char *)&msg_number,sizeof(int));
     fio.close();
     return;
 }
 
-void Messagedatabase::add_msg(User new_msg)
+int Messagedatabase::add_msg(Message new_msg)
 {
     fio.open(messagedata_filename,ios::out|ios::app);
     fio.write((char *)&new_msg,sizeof(Message));
     fio.close();
-    return;
+    msg_number++;
+    return msg_number;
 }
