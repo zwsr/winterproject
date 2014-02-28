@@ -1,8 +1,9 @@
 #ifndef _USER_H_
 #define _USER_H_
-#include <iostream>
-#include <cstring>
 
+#include <iostream>
+#include <string.h>
+#include <stdlib.h>
 #define IDMAXLENGTH 12
 #define HOMEMAXLENGTH 10
 #define PHONENUMBERMAXLENGTH 16
@@ -12,6 +13,9 @@
 #define PASSWORDMAXLENGTH 16
 
 //ID限制11个字符 家乡9个 密码15个
+
+#define MESSAGEPERPAGE 30
+
 
 //接下来的宏为各数据在user中的相对位置
 
@@ -60,18 +64,18 @@ public:
         memset(this,0,sizeof(User));
     }
 
-    User(User target)
+    User(const User& target)
     {
         memcpy(this,&target,sizeof(User));
     }
 
-    string get_logginid() const
+    std::string get_logginid() const
     {
         return name;
     }
-    bool is_active () const
+    bool is_active ()
     {
-        return !is_disableuser;
+        return !(is_disableuser);
     }
 
     void add_msg(int mid);
@@ -86,13 +90,13 @@ public:
     void unfollow_someone(int tagid);
     void follow_someone(int u);
     void change_password();
-    void disable_account();
+    int disable_account();
     void check_i_followed_who_list();
     void check_i_am_followed_by_who_list();
     void check_msg();
     void seek_user();  //id only    
-    void trans_message(int mid);\
-    void registing(string logid, int uid);
+    void trans_message(int mid);
+    void registing(std::string logid, int uid);
     int log_in(); //-1 for wrong ps  0 for right
     void log_out();   //把当前活跃用户的数据刷回硬盘
 

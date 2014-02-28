@@ -2,9 +2,10 @@
 #define MESSAGE_H
 
 #include <iostream>
+#include <fstream>
 #include <cstring>
 #include "User.h"
-
+using namespace std;
 
 #define CONTENTMAXLENGTH 139
 
@@ -21,24 +22,21 @@ public:
     {
         memset(this,0,sizeof(Message));
     }
-    Message(Message backer)
+    Message(const Message& backer)
     {
-        memcpy(this,backer,sizeof(Message));
+        memcpy(this,&backer,sizeof(Message));
     }
 
-    string get_content() const
+    string get_content()
     {
         return content;
     }
+
     Message(string cont,int dlv_id, int src_msg, string logid); // src_msg 代表来源信息的mid logid是发送者的id
     string packed_tranferedcontent();
-    friend ostream& operator<<(ostream& , const Message& );
+    friend ostream& operator<< (ostream& , const Message& );
 };
-operator << (ostream& out, const Message &m)
-{
-    out << content << "\n";
-    << "from " << m.logginid << "   Transfered times:"  << m.transed_count << endl;
-}
+
 
 
 #endif // MESSAGE_H

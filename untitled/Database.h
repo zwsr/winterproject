@@ -1,5 +1,6 @@
 #ifndef DATABASE_H
 #define DATABASE_H
+
 #include "User.h"
 #include "User.h"
 #include "Message.h"
@@ -10,11 +11,11 @@
 #define CACHESIZE 100       //表示user缓存中最多有多少数据
 #define MSGCACHESIZE 100       //表示msg缓存中最多有多少数据
 
-const string userindex_filename = "userindex.dat";
-const string userdata_filename = "userdata.dat";
-const string messagedata_filename = "messagedata.dat";
+const std::string userindex_filename = "userindex.dat";
+const std::string userdata_filename = "userdata.dat";
+const std::string messagedata_filename = "messagedata.dat";
 
-const string moreslottag = "morethanone"; //代表该slot有多个key的stream
+const std::string moreslottag = "morethanone"; //代表该slot有多个key的stream
 
 struct Userslotentry  //一个条目中有uid 和 login id
 {
@@ -32,19 +33,19 @@ private:
 public:
     Hashindex_db() { }
     void init();
-    int get_keyvalue(string id);
+    int get_keyvalue(std::string id);
     int get_data_number() const
     {
         return data_number;
     }
-    int search_loginid(string id, int* slotid, int* gap); //返回0代表未找到该用户 slotid代表该id对应的hashslot
-    int registing_id(string id); //返回-1表示注册失败 非0的uid表示成功
+    int search_loginid(std::string id, int* slotid, int* gap); //返回0代表未找到该用户 slotid代表该id对应的hashslot
+    int registing_id(std::string id); //返回-1表示注册失败 非0的uid表示成功
 };
 
 class Userdatabase    //一个专门用来管理储存user数据的文件 该文件"userdata.dat"
 {
 private:
-    fstream fio;
+    std::fstream fio;
 
 public:
     User get_user(int uid);
@@ -57,7 +58,7 @@ public:
 class Messagedatabase //一个专门用来管理储存message数据的文件 该文件"messagedata.dat"
 {
 private:
-    fstream fio;
+    std::fstream fio;
     int msg_number;
 
 public:
@@ -69,7 +70,7 @@ public:
     {}
     ~Messagedatabase()
     {
-        fio.open(messagedata_filename,ios::out|ios::in);
+        fio.open(messagedata_filename.c_str(),std::ios::out|std::ios::in);
         fio.write((char *)&msg_number,sizeof(int));
         fio.close();
     }

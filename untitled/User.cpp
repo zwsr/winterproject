@@ -5,6 +5,7 @@
 #include "stdlib.h"
 #include <sstream>
 #include <algorithm>
+#include "assert.h"
 using namespace std;
 
 extern Hashindex_db userindex_db;
@@ -13,32 +14,20 @@ extern Messagedatabase message_db;
 extern Usercache user_cache;
 extern Messagecache msg_cache;
 
-User::User()
-{
-}
-
 void User::add_msg(int mid)
 {
     fstream fio;
     message_delieverd[0]++;
     message_delieverd[message_delieverd[0]] = mid;
-/*
-    fio.open(userdata_filename,ios::out|ios::in);
-    fio.seekg(sizeof(user) * (uid - 1) + MSG_DLVD,ios::beg);
-    int cur_msg_number = 0;
-    fio.read((char *)&cur_msg_number,sizeof(int));
-    fio.seekg(-1 * sizeof(int),ios::cur);
-    cur_msg_number++;
-    fio.write((char *)&cur_msg_number,sizeof(int));
-    fio.seekg(sizeof(int) * (cur_msg_number - 1),ios::cur);
-    fio.write((char *)&mid,sizeof(int));
-    fio.close();
-/*/
+
+    user_db.writeback_user(uid,*this);
+
     return;
 }
 
 void User::deliver_message()
 {
+    cout << "-----------------------------------------------------------\n";
     if (message_delieverd[0] >= MESSAGEDELIVERINGMAX)
     {
         cout << "You have delivered too much message!\n";
@@ -67,6 +56,7 @@ void User::deliver_message()
 
 void User::change_name()
 {
+    cout << "-----------------------------------------------------------\n";
     cout << "Input your name(less than 10 characters):";
     string name_tmp;
     cin >> name_tmp;
@@ -89,6 +79,7 @@ void User::change_name()
 
 void User::change_birthday()
 {
+    cout << "-----------------------------------------------------------\n";
     cout << "Input your birthday(xx/xx/xx):";
     string tmp;
     cin >> tmp;
@@ -96,7 +87,7 @@ void User::change_birthday()
     {
         int count = 0;
         for (int i = 0;i < tmp.length();i++)
-            if (tmp[i] = '/') count++;
+            if (tmp[i] == '/') count++;
         if (count == 2) break;
         cout << "Input the right form!\n";
         cout << "Input your birthday(xx/xx/xx):";
@@ -115,6 +106,7 @@ void User::change_birthday()
 
 void User::change_gender()
 {
+    cout << "-----------------------------------------------------------\n";
     cout << "Input your gender(0 for female,1 for male):";
     char tmp;
     cin >> tmp;
@@ -132,7 +124,7 @@ void User::change_gender()
             break;
         }
 
-        cout << "Input the right alpha!\n";
+        cout << "Input an efficient number!\n";
         cout << "Input your gender(0 for female,1 for male):";
         cin >> tmp;
     }
@@ -148,6 +140,7 @@ void User::change_gender()
 
 void User::change_phonenumber()
 {
+    cout << "-----------------------------------------------------------\n";
     cout << "Input your phonenumber(less than 15 characters):";
     string tmp;
     cin >> tmp;
@@ -171,6 +164,7 @@ void User::change_phonenumber()
 
 void User::change_hometown()
 {
+    cout << "-----------------------------------------------------------\n";
     cout << "Input your hometown(less than 9 characters):";
     string tmp;
     cin >> tmp;
@@ -194,6 +188,7 @@ void User::change_hometown()
 
 void User::change_information()
 {
+    cout << "-----------------------------------------------------------\n";
     cout << "Follow instructions below to continue:\n";
     char tmp;
     while (true)
@@ -243,6 +238,7 @@ void User::change_information()
 
 void User::change_password()
 {
+    cout << "-----------------------------------------------------------\n";
     cout << "Enter your old password:";
     string tmp;
     cin >> tmp;
@@ -288,8 +284,9 @@ void User::change_password()
 /*/
 }
 
-void User::disable_account()
+int User::disable_account()
 {
+    cout << "-----------------------------------------------------------\n";
     cout << "You are disabling your account now!\n"
          << "Enter 'y' to continue,or go back to the menu:";
     char tag;
@@ -298,7 +295,7 @@ void User::disable_account()
     if (tag != 'y')
     {
         cout << "Your account is still alive!\n";
-        return;
+        return -1;
     }
 
     cout << "Enter your password:\n";
@@ -309,7 +306,7 @@ void User::disable_account()
     {
         cout << "Password Wrong!\n";
         cout << "Your account is still alive!\n";
-        return;
+        return -1;;
     }
 
     cout << "It's the last time that we inform you that your account can't be used or registered anymore!\n"
@@ -320,20 +317,27 @@ void User::disable_account()
     if (tag != 'y')
     {
         cout << "Your account is still alive!\n";
-        return;
+        return -1;;
     }
 
     is_disableuser = true;
-    log_out();
     cout << "Your account has been disabled.\n";
+    user_db.writeback_user(uid,*this);
 /*
 
 /*/
-    return;
+    return 0;
 }
 
 void User::follow_someone(int u)
 {
+    cout << "-----------------------------------------------------------\n";
+    if ( u==uid)
+    {
+        cout << "You can't follow yourself man!\n";
+        cout << "Follow failed.\n";
+        return;
+    }
     int is_followed = 0;
     for (int i = 0; i <= user_followed[0]; i++)
         if (u == user_followed[i])
@@ -347,7 +351,7 @@ void User::follow_someone(int u)
         return;
     }
 
-    if (user_followed >= FOLLOWEOTHERMAX)
+    if (user_followed[0] >= FOLLOWEOTHERMAX)
     {
         cout << "You have followed too many guys!\n";
         cout << "Follow failed.\n";
@@ -360,14 +364,16 @@ void User::follow_someone(int u)
     int target_cacheid = 0;
     target_cacheid = user_cache.get_id(u);
     user_cache.user[target_cacheid].user_following_me[0]++;
-    user_cache.user[target_cacheid].user_following_me[user_cache.user[target_cacheid].user_following_me[0]];
+    user_cache.user[target_cacheid].user_following_me[user_cache.user[target_cacheid].user_following_me[0]] = uid;
     user_cache.writeback_id(target_cacheid);
+    user_db.writeback_user(uid,*this);
     cout << "Follow " << user_cache.user[target_cacheid].name <<"successful!\n";
     return;
 }
 
 void User::unfollow_someone(int tagid)
 {
+    cout << "-----------------------------------------------------------\n";
     int target_uid = user_followed[tagid];
     user_followed[tagid]= user_followed[user_followed[0]];
     user_followed[user_followed[0]] = 0;
@@ -382,9 +388,10 @@ void User::unfollow_someone(int tagid)
             break;
         }
     user_cache.user[target_cacheid].user_following_me[self_tagid] = user_cache.user[target_cacheid].user_following_me[user_cache.user[target_cacheid].user_following_me[0]];
-    user_cache.user[target_cacheid][user_cache.user[target_cacheid].user_following_me[0]] = 0;
+    user_cache.user[target_cacheid].user_following_me[user_cache.user[target_cacheid].user_following_me[0]] = 0;
     user_cache.user[target_cacheid].user_following_me[0]--;
     user_cache.writeback_id(target_cacheid);
+    user_db.writeback_user(uid,*this);
     cout << "unfollow" << user_cache.user[target_cacheid].name <<" successful!\n";
     return;
 }
@@ -392,6 +399,7 @@ void User::unfollow_someone(int tagid)
 
 void User::check_i_followed_who_list()
 {
+    cout << "-----------------------------------------------------------\n";
     cout << "You have followed these users:\n";
     for (int i = 1; i <= user_followed[0]; i++)
     {
@@ -404,8 +412,6 @@ void User::check_i_followed_who_list()
 
     cout << "Follow instructions below to continue:\n";
     char tag;
-    cin >> tag;
-    cin.sync();
 
     int jumpout_tag = 1;
     while (jumpout_tag)
@@ -414,6 +420,9 @@ void User::check_i_followed_who_list()
         cout << "Enter [2] to unfollow someone from left-tag above.\n";
         cout << "Enter [3] to recheck the list of whom you are following.\n";
         cout << "Enter [0] to go back to menu.\n";
+
+        cin >> tag;
+        cin.sync();
 
         switch (tag)
         {
@@ -429,7 +438,7 @@ void User::check_i_followed_who_list()
                 cin.sync();
                 cin >> looking_tag;
             }
-            while ( (looking_tag <= 0)&&(looking_tag >= user_following_me[0] ) )
+            while ( (looking_tag <= 0)&&(looking_tag >= user_followed[0] ) )
             {
                 cout << "please input a right left-tag shown above!\n";
                 cin >> looking_tag;
@@ -442,7 +451,7 @@ void User::check_i_followed_who_list()
                 }
             }
 
-            User thetarget(user_cache[user_cache.get_id(user_following_me[looking_tag])]);
+            User thetarget(user_cache.user[user_cache.get_id(user_followed[looking_tag])]);
             for (int i = thetarget.message_delieverd[0];i > 0;i--)
                 cout << msg_cache.msg[msg_cache.get_id(thetarget.message_delieverd[i])] << endl;
 
@@ -463,7 +472,7 @@ void User::check_i_followed_who_list()
                 cin.sync();
                 cin >> looking_tag;
             }
-            while ( (looking_tag <= 0)&&(looking_tag >= user_following_me[0] ) )
+            while ( (looking_tag <= 0)&&(looking_tag >= user_followed[0] ) )
             {
                 cout << "please input a right left-tag shown above!\n";
                 cin >> looking_tag;
@@ -476,9 +485,7 @@ void User::check_i_followed_who_list()
                 }
             }
 
-            int to_follower_uid;
-            to_follower_uid = user_following_me[looking_tag];
-            follow_someone(to_follower_uid);
+            unfollow_someone(looking_tag);
             cout << "Enter any key to back\n";
             string tmp;
             cin >> tmp;
@@ -506,8 +513,6 @@ void User::check_i_followed_who_list()
         }
         default:
             cout << "Plz input a right number!\n";
-            cin >> tag;
-            cin.sync();
             break;
         }
     }
@@ -517,6 +522,7 @@ void User::check_i_followed_who_list()
 
 void User::check_i_am_followed_by_who_list()
 {
+    cout << "-----------------------------------------------------------\n";
     cout << "These guys are following:\n";
     for (int i = 1; i <= user_following_me[0]; i++)
     {
@@ -568,7 +574,7 @@ void User::check_i_am_followed_by_who_list()
                 }
             }
 
-            User thetarget(user_cache[user_cache.get_id(user_followed[looking_tag])]);
+            User thetarget(user_cache.user[user_cache.get_id(user_following_me[looking_tag])]);
             for (int i = thetarget.message_delieverd[0];i > 0;i--)
                 cout << msg_cache.msg[msg_cache.get_id(thetarget.message_delieverd[i])] << endl;
 
@@ -589,7 +595,7 @@ void User::check_i_am_followed_by_who_list()
                 cin.sync();
                 cin >> looking_tag;
             }
-            while ( (looking_tag <= 0)&&(looking_tag >= user_followed[0] ) )
+            while ( (looking_tag <= 0)&&(looking_tag >= user_following_me[0] ) )
             {
                 cout << "please input a right left-tag shown above!\n";
                 cin >> looking_tag;
@@ -602,7 +608,9 @@ void User::check_i_am_followed_by_who_list()
                 }
             }
 
-            unfollow_someone(looking_tag);
+            int target_uid;
+            target_uid = user_following_me[looking_tag];
+            follow_someone(target_uid);
             cout << "Enter any key to back\n";
             string tmp;
             cin >> tmp;
@@ -638,8 +646,9 @@ void User::check_i_am_followed_by_who_list()
 }
 
 void User::check_msg()
-{
-    int msg_tmpamout[10000000];
+{    
+    cout << "-----------------------------------------------------------\n";
+    int msg_tmpamout[10000];
     int msg_number = 0;
     for (int i = 0; i <= user_followed[0]; i++)
     {
@@ -667,7 +676,7 @@ void User::check_msg()
 
     int tmp_number =msg_number;
 
-    if ( msg_number <= 30 )
+    if ( msg_number <= MESSAGEPERPAGE )
     {
     for (int i = msg_number-1; i >=0 ; i--)
         cout << "Tag-" << i <<":" << msg_cache.msg[msg_cache.get_id(msg_amout[i])] << endl;
@@ -686,40 +695,137 @@ void User::check_msg()
         switch (tag)
         {
         case '1':
+        {
             cout << "Choose the message you want to tranfer via inputing tag shown above:\n";
 
             int msg_tag;
             cin >> msg_tag;
             while (!cin.good())
             {
-                cout << "Plz input a number!\n";
+                cout << "Please input the message taq.\n";
                 cin.clear();
                 cin.sync();
                 cin >> msg_tag;
             }
-            while ( (msg_tag <= 0)&&(msg_tag >= user_following_me[0] ) )
+            while ( (msg_tag <= 0)&&(msg_tag >= msg_number ) )
             {
-                cout << "please input a right left-tag shown above!\n";
+                cout << "please input a right tag shown above!\n";
                 cin >> msg_tag;
                 while (!cin.good())
                 {
-                    cout << "Plz input a number!\n";
+                    cout << "please input a right left-tag shown above!\n";
                     cin.clear();
                     cin.sync();
                     cin >> msg_tag;
                 }
             }
 
-
+            int msg_mid = msg_amout[msg_tag];
+            trans_message(msg_mid);
+            check_msg();
+            return;
+            break;
         }
+        case '0':
+        {
+            jmp_tag = 0;
+            break;
+        }
+        default:
+            cout << "Plz input a right number!/n";
+            break;
+        }
+    }
+    }
 
-    }
-    }
     else
     {
+        tmp_number -= MESSAGEPERPAGE;
+        for (int i = msg_number-1; i >= tmp_number ; i--)
+            cout << "Tag-" << i <<":" << msg_cache.msg[msg_cache.get_id(msg_amout[i])] << endl;
 
+        char tag;
+        int jmp_tag = 1;
+
+        while (jmp_tag)
+        {
+            cout << "Enter [1] to tranfer a message according to above tag.\n";
+            cout << "Enter [2] to see previous message page.\n";
+            cout << "Enter [3] to see next message page\n";
+            cout << "Enter [0] to go back to menu.\n";
+
+            cin >> tag;
+            cin.sync();
+
+            switch (tag)
+            {
+            case '1':
+            {
+                cout << "Choose the message you want to tranfer via inputing tag shown above:\n";
+
+                int msg_tag;
+                cin >> msg_tag;
+                while (!cin.good())
+                {
+                    cout << "Please input the message taq.\n";
+                    cin.clear();
+                    cin.sync();
+                    cin >> msg_tag;
+                }
+                while ( (msg_tag <= max(0,tmp_number-1))&&(msg_tag >= min(msg_number,tmp_number+MESSAGEPERPAGE) ) )
+                {
+                    cout << "please input a right tag shown above!\n";
+                    cin >> msg_tag;
+                    while (!cin.good())
+                    {
+                        cout << "please input a right left-tag shown above!\n";
+                        cin.clear();
+                        cin.sync();
+                        cin >> msg_tag;
+                    }
+                }
+
+                int msg_mid = msg_amout[msg_tag];
+                trans_message(msg_mid);
+                break;
+            }
+            case '2':
+            {
+                if ( (tmp_number + MESSAGEPERPAGE) == msg_number)
+                {
+                    cout << "This page is already the first page.\n";
+                    break;
+                }
+                tmp_number += MESSAGEPERPAGE;
+
+                for (int i = tmp_number + MESSAGEPERPAGE - 1; i >= tmp_number ; i--)
+                    cout << "Tag-" << i <<":" << msg_cache.msg[msg_cache.get_id(msg_amout[i])] << endl;
+                break;
+            }
+            case '3':
+            {
+                if ( tmp_number <= 0)
+                {
+                    cout << "This page is already the last page.\n";
+                    break;
+                }
+                tmp_number -= MESSAGEPERPAGE;
+
+                for (int i = tmp_number + MESSAGEPERPAGE - 1; i >= max(0,tmp_number) ; i--)
+                    cout << "Tag-" << i <<":" << msg_cache.msg[msg_cache.get_id(msg_amout[i])] << endl;
+                break;
+            }
+            case '0':
+            {
+                jmp_tag = 0;
+                break;
+            }
+            default:
+                cout << "Plz input a right number!/n";
+                break;
+            }
+        }
     }
-
 
     delete msg_amout;
     return;
@@ -727,6 +833,7 @@ void User::check_msg()
 
 void User::seek_user()
 {
+    cout << "-----------------------------------------------------------\n";
     cout << "Follow instructions below to continue:\n";
     char tag;
 
@@ -770,6 +877,7 @@ void User::seek_user()
             {
             case '1':
                 follow_someone(geted_uid);
+                jumpout_tag2 = 0;
                 break;
             case '0':
                 jumpout_tag2 = 0;
@@ -779,6 +887,7 @@ void User::seek_user()
                 break;
             }
             }
+            break;
         }
         case '2':
         {
@@ -824,6 +933,7 @@ void User::seek_user()
             {
             case '1':
                 follow_someone(geted_uid);
+                jumpout_tag2 = 0;
                 break;
             case '0':
                 jumpout_tag2 = 0;
@@ -847,6 +957,7 @@ void User::seek_user()
 
 void User::trans_message(int mid)
 {
+    cout << "-----------------------------------------------------------\n";
     if (message_delieverd[0] >= MESSAGEDELIVERINGMAX)
     {
         cout << "You have delivered too much message!\n";
@@ -861,8 +972,7 @@ void User::trans_message(int mid)
     msg_formalcontent = msg_cache.msg[msg_cache.get_id(mid)].packed_tranferedcontent();
 
 
-    string msgcontent = msg_commnet + "  " + msg_formalcontent;
-    cin >> msgcontent;
+    string msgcontent = msg_commnet + "  " + msg_formalcontent;    
     while (msgcontent.length() >= 138)
     {
         cout << "Your comment is too long!\n";
@@ -876,15 +986,17 @@ void User::trans_message(int mid)
     int newmsg_mid = message_db.add_msg(new_msg);
 
     add_msg(newmsg_mid);
-    cout << "You succeeded to delivered a message!\n";
+    cout << "You succeeded to transfer a message!\n";
     return;
 }
 
 void User::registing(string logid, int u)
 {
-    strcpy(loginid,logid);
+    cout << "-----------------------------------------------------------\n";
+    strcpy(loginid,logid.c_str());
     uid = u;
 
+    string tmp;
     while (true)
     {
     cout << "Please input your password(less than 16 characters):";
@@ -936,14 +1048,13 @@ int User::log_in()
     if (psd == password)
         return 0;
     return -1;
-}\
+}
 
-int User::log_out()
+void User::log_out()
 {
     user_db.writeback_user(uid,*this);
     cout << "You have successfully logged out!\n";
     return;
-
 }
 
 

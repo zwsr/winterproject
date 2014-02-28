@@ -4,10 +4,9 @@
 #include <Database.h>
 extern Messagecache msg_cache;
 
-using namespace std;
-
 Message::Message(string cont, int dlv_id, int src_msg, string logid)
 {
+    transed_count = 0;
     strcpy(content,cont.c_str());
     strcpy(logginid,logid.c_str());
     deliver_id = dlv_id;
@@ -24,11 +23,19 @@ string Message::packed_tranferedcontent()
 {
     string tmp,tmp_2;
     tmp = logginid;
-    tmp_2 = "Transfered from:" +;
+    tmp_2 = "Transfered from:";
     tmp = tmp_2 + tmp;
     tmp = tmp + "  ";
     tmp_2 = content;
     tmp = tmp + tmp_2;
     return tmp;
+}
+
+
+ostream& operator<< (ostream& out, const Message &m)
+{
+    out << m.content << "\n"
+        << "from " << m.logginid << "   Transfered times:"  << m.transed_count << endl;
+    return out;
 }
 

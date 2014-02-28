@@ -1,8 +1,8 @@
 #include "Database.h"
-
+#include "assert.h"
 extern Userdatabase user_db;
 extern Messagedatabase message_db;
-
+using namespace std;
 
 int Hashindex_db::get_keyvalue(string id)
 {
@@ -45,13 +45,20 @@ void Hashindex_db::init()
 int Hashindex_db::search_loginid(string id, int *slotid, int *gap)
 {
 //phase_1
+
     int key_slot = get_keyvalue(id);
     *slotid = key_slot;
+    //cout << id << endl;
+    //cout << hash_slots[key_slot].loginid << endl;
     if (hash_slots[key_slot].loginid != moreslottag)
     {
-        if ( hash_slots[key_slot].uid == 0 ) return 0;
+        if ( hash_slots[key_slot].uid == 0 )
+        {
+
+            return 0;
+        }
         if ( hash_slots[key_slot].loginid == id ) return hash_slots[key_slot].uid;
-        else return 0;
+        return 0;
     }
 //phase_2
     else
@@ -100,7 +107,7 @@ int Hashindex_db::registing_id(string id)
     if (hash_slots[slotid].uid == 0)
     {
         hash_slots[slotid].uid = data_number;
-        strcpy(hash_slots[slotid].loginid,id);
+        strcpy(hash_slots[slotid].loginid,id.c_str());
         fio.seekg(sizeof(int) * 3 + sizeof(Userslotentry) * slotid,ios::beg);
         fio.write((char *)&(hash_slots[slotid]),sizeof(Userslotentry));
         fio.close();
@@ -112,7 +119,7 @@ int Hashindex_db::registing_id(string id)
         slot_number++;
         Userslotentry tmp_entry = hash_slots[slotid];
         hash_slots[slotid].uid = slot_number;
-        strcpy(hash_slots[slotid].loginid,moreslottag);
+        strcpy(hash_slots[slotid].loginid,moreslottag.c_str());
         fio.seekg(sizeof(int) * 3 + sizeof(Userslotentry) * slotid,ios::beg);
         fio.write((char *)&(hash_slots[slotid]),sizeof(Userslotentry));
         fio.seekg(0,ios::end);
@@ -120,7 +127,7 @@ int Hashindex_db::registing_id(string id)
         fio.write((char *)&tmp,sizeof(int));
         fio.write((char *)&tmp_entry,sizeof(Userslotentry));
         tmp_entry.uid = data_number;
-        strcpy(tmp_entry.loginid,id);
+        strcpy(tmp_entry.loginid,id.c_str());
         fio.write((char *)&tmp_entry,sizeof(Userslotentry));
         fio.close();
         return data_number;
@@ -150,7 +157,7 @@ int Hashindex_db::registing_id(string id)
     fio.read(buffer,size);
     fio.seekg(size_1);
     fueler.uid = data_number;
-    strcpy(fueler.loginid,id);
+    strcpy(fueler.loginid,id.c_str());
     fio.write((char *)&fueler,sizeof(Userslotentry));
     fio.write(buffer,size);
     fio.close();
@@ -159,7 +166,7 @@ int Hashindex_db::registing_id(string id)
 
 User Userdatabase::get_user(int uid)
 {
-    fio.open(userdata_filename,ios::in|ios::out);
+    fio.open(userdata_filename.c_str(),ios::in|ios::out);
     fio.seekg((uid - 1)*sizeof(User),ios::beg);
     User tmp_user;
     fio.read((char *)&tmp_user,sizeof(User));
@@ -169,16 +176,16 @@ User Userdatabase::get_user(int uid)
 
 void Userdatabase::init()
 {
-    fio.open(userdata_filename,ios::in);
+    fio.open(userdata_filename.c_str(),ios::in);
     if (!fio)
-        fio.open(userdata_filename,ios::out);
+        fio.open(userdata_filename.c_str(),ios::out);
     fio.close();
     return;
 }
 
 void Userdatabase::add_user(User newer)
 {
-    fio.open(userdata_filename,ios::out|ios::app);
+    fio.open(userdata_filename.c_str(),ios::out|ios::app);
     fio.write((char *)&newer,sizeof(User));
     fio.close();
     return;
@@ -186,7 +193,7 @@ void Userdatabase::add_user(User newer)
 
 void Userdatabase::writeback_user(int uid, User u)
 {
-    fio.open(userdata_filename,ios::out|ios::in);
+    fio.open(userdata_filename.c_str(),ios::out|ios::in);
     fio.seekg(sizeof(User)*(uid-1),ios::beg);
     fio.write((char *)&u,sizeof(User));
     fio.close();
@@ -195,8 +202,8 @@ void Userdatabase::writeback_user(int uid, User u)
 
 Message Messagedatabase::get_message(int mid)
 {
-    fio.open(messagedata_filename,ios::in|ios::out);
-    fio.seekg((uid - 1)*sizeof(Message) + sizeof(int),ios::beg);
+    fio.open(messagedata_filename.c_str(),ios::in|ios::out);
+    fio.seekg((mid - 1)*sizeof(Message) + sizeof(int),ios::beg);
     Message tmp_msg;
     fio.read((char *)&tmp_msg,sizeof(Message));
     fio.close();
@@ -205,10 +212,10 @@ Message Messagedatabase::get_message(int mid)
 
 void Messagedatabase::init()
 {
-    fio.open(messagedata_filename,ios::in);
+    fio.open(messagedata_filename.c_str(),ios::in);
     if (!fio)
     {
-        fio.open(messagedata_filename,ios::out);
+        fio.open(messagedata_filename.c_str(),ios::out);
         fio.write((char *)&msg_number,sizeof(int));
     }
     fio.read((char *)&msg_number,sizeof(int));
@@ -218,7 +225,7 @@ void Messagedatabase::init()
 
 int Messagedatabase::add_msg(Message new_msg)
 {
-    fio.open(messagedata_filename,ios::out|ios::app);
+    fio.open(messagedata_filename.c_str(),ios::out|ios::app);
     fio.write((char *)&new_msg,sizeof(Message));
     fio.close();
     msg_number++;
@@ -227,8 +234,8 @@ int Messagedatabase::add_msg(Message new_msg)
 
 void Messagedatabase::writeback_msg(int mid, Message backer)
 {
-    fio.open(messagedata_filename,ios::in|ios::out);
-    fio.seekg((uid - 1)*sizeof(Message) + sizeof(int),ios::beg);
+    fio.open(messagedata_filename.c_str(),ios::in|ios::out);
+    fio.seekg((mid - 1)*sizeof(Message) + sizeof(int),ios::beg);
     fio.write((char *)&backer,sizeof(Message));
     fio.close();
     return;
@@ -250,7 +257,7 @@ int Messagecache::search_msg(int m)
 {
     int id = -1;
     for (int i = 0; i < MSGCACHESIZE; i++)
-        if (mid[i] ==  u)
+        if (mid[i] ==  m)
         {
             id = i;
             break;
