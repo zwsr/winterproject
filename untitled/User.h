@@ -59,23 +59,45 @@ public:
     {
         memset(this,0,sizeof(User));
     }
+
+    User(User target)
+    {
+        memcpy(this,&target,sizeof(User));
+    }
+
+    string get_logginid() const
+    {
+        return name;
+    }
+    bool is_active () const
+    {
+        return !is_disableuser;
+    }
+
     void add_msg(int mid);
     void deliver_message();    
     void change_information();
-
     void change_name();
     void change_birthday();
     void change_gender();
     void change_phonenumber();
     void change_hometown();
 
+    void unfollow_someone(int tagid);
+    void follow_someone(int u);
     void change_password();
     void disable_account();
     void check_i_followed_who_list();
     void check_i_am_followed_by_who_list();
     void check_msg();
-    void seek_user();  //id only
-    void see_one_msglist(int uid);
-    void trans_message(int mid);
+    void seek_user();  //id only    
+    void trans_message(int mid);\
+    void registing(string logid, int uid);
+    int log_in(); //-1 for wrong ps  0 for right
+    void log_out();   //把当前活跃用户的数据刷回硬盘
+
+
 };
+
+
 #endif // USER_H
