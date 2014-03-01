@@ -55,7 +55,7 @@ int main()
     fo1.open("Database_Inserting2.txt");
     fo2.open("Database_Searching2.txt");
 
-    int tst_insert[TST_NUMBER] = {700,900,1000,1200,1500,1800,2700,3500,4000,5000};
+    int tst_insert[TST_NUMBER] = {10,20,30,50,70,100,150,200,250,500};
     for (int j=0; j < TST_NUMBER; j++)
     {
     test_db.init();
