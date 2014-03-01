@@ -33,6 +33,7 @@ private:
 public:
     Hashindex_db() { }
     void init();
+    void write_back();
     int get_keyvalue(std::string id);
     int get_data_number() const
     {
